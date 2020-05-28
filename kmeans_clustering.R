@@ -7,3 +7,26 @@ sep14<-read.csv("C:/Users/lenovo/Documents/DATA/uber-raw-data-sep14.csv", header
 data14<-bind_rows(apr14,may14,jun14,jul14,aug14,sep14)
 summary(data14)
 install.packages("VIM")
+aggr(data14)
+data14$Date.Time <- mdy_hms(data14$Date.Time)
+data14$Year <- factor(year(data14$Date.Time))
+data14$Month <- factor(month(data14$Date.Time))
+data14$Day <- factor(day(data14$Date.Time))
+data14$Weekday <- factor(wday(data14$Date.Time))
+data14$Hour <- factor(hour(data14$Date.Time))
+data14$Minute <- factor(minute(data14$Date.Time))
+data14$Second <- factor(second(data14$Date.Time))
+clusters<-kmeans(data14[,2:3],5)
+str(clusters)
+data14$Borough <- as.factor(clusters$cluster)
+install.packages("ggmap")
+data14$Month <- as.double(data14$Month)
+month_borough_14 <- count_(data14, vars = c('Month', 'Borough'), sort = TRUE) %>%
+arrange(Month, Borough)
+datatable(month_borough_14)
+
+monthly_growth <- month_borough_14 %>%
+  mutate(Date = paste("04", Month)) %>%
+  ggplot(aes(Month, n, colour = Borough)) + geom_line() +
+  ggtitle("Uber Monthly Growth - 2014")
+monthly_growth
