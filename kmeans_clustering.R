@@ -16,17 +16,35 @@ data14$Weekday <- factor(wday(data14$Date.Time))
 data14$Hour <- factor(hour(data14$Date.Time))
 data14$Minute <- factor(minute(data14$Date.Time))
 data14$Second <- factor(second(data14$Date.Time))
+data5000<-data14[1:5000,]
+data5000<-data5000[,-12]
+set.seed(0)
+fviz_nbclust(data5000[,2:3], kmeans, method="wss", print.summary = TRUE)
+clust<-kmeans(data5000[,2:3],5,nstart=20)
+str(clust)
+data5000$Borough<-as.factor(clust$cluster)
+fviz_cluster(clust,data5000,choose.vars=c("Lat","Lon"),ellipse=TRUE)
+fviz_nbclust(data5000[,2:3],cluster::pam)
+
+
+
+
+
+
 clusters<-kmeans(data14[,2:3],5)
 str(clusters)
 data14$Borough <- as.factor(clusters$cluster)
-install.packages("ggmap")
-data14$Month <- as.double(data14$Month)
-month_borough_14 <- count_(data14, vars = c('Month', 'Borough'), sort = TRUE) %>%
-arrange(Month, Borough)
-datatable(month_borough_14)
+#install.packages("ggmap")
+#data14$Month <- as.double(data14$Month)
+#month_borough_14 <- count_(data14, vars = c('Month', 'Borough'), sort = TRUE) %>%
+#arrange(Month, Borough)
+#datatable(month_borough_14)
 
-monthly_growth <- month_borough_14 %>%
-  mutate(Date = paste("04", Month)) %>%
-  ggplot(aes(Month, n, colour = Borough)) + geom_line() +
-  ggtitle("Uber Monthly Growth - 2014")
-monthly_growth
+#monthly_growth <- month_borough_14 %>%
+  #mutate(Date = paste("04", Month)) %>%
+  #ggplot(aes(Month, n, colour = Borough)) + geom_line() +
+ # ggtitle("Uber Monthly Growth - 2014")
+#monthly_growth
+
+pamclust<-pam(data5000[,2:3],4)
+fviz_cluster(pamclust,data5000,choose.vars = c("Lat","Lon"),ellipse=TRUE)
